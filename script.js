@@ -111,18 +111,7 @@ let completed = false;
 let currentTurn = "red";
 let audioEnabled = true;
 
-const dragState = {
-  active: false,
-  moved: false,
-  pieceId: null,
-  origin: null,
-  pointerId: null,
-  touchId: null,
-  startX: 0,
-  startY: 0,
-  ghost: null,
-  suppressClick: null,
-};
+const dragState = {};
 
 function clonePieces(levelPieces) {
   return levelPieces.map((p) => ({ ...p }));
@@ -147,18 +136,88 @@ function buildBoard() {
     }
   }
 
+  const lines = createBoardLinesSvg();
+  boardEl.appendChild(lines);
+
   const river = document.createElement("div");
   river.className = "river-band";
   river.innerHTML = "<span>楚河</span><span>汉界</span>";
   boardEl.appendChild(river);
+}
 
-  const palaceTop = document.createElement("div");
-  palaceTop.className = "palace palace-top";
-  boardEl.appendChild(palaceTop);
+function createBoardLinesSvg() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.classList.add("board-lines");
 
-  const palaceBottom = document.createElement("div");
-  palaceBottom.className = "palace palace-bottom";
-  boardEl.appendChild(palaceBottom);
+  const lineGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  lineGroup.setAttribute("stroke", "var(--line)");
+  lineGroup.setAttribute("stroke-width", "0.32");
+  lineGroup.setAttribute("stroke-linecap", "square");
+
+  const startX = 100 / 18;
+  const stepX = 100 / 9;
+  const startY = 100 / 20;
+  const stepY = 100 / 10;
+
+  for (let row = 0; row < BOARD_H; row += 1) {
+    const y = startY + row * stepY;
+    const h = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    h.setAttribute("x1", `${startX}`);
+    h.setAttribute("x2", `${100 - startX}`);
+    h.setAttribute("y1", `${y}`);
+    h.setAttribute("y2", `${y}`);
+    lineGroup.appendChild(h);
+  }
+
+  const riverTop = startY + 4 * stepY;
+  const riverBottom = startY + 5 * stepY;
+  for (let col = 0; col < BOARD_W; col += 1) {
+    const x = startX + col * stepX;
+    const v1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v1.setAttribute("x1", `${x}`);
+    v1.setAttribute("x2", `${x}`);
+    v1.setAttribute("y1", `${startY}`);
+    v1.setAttribute("y2", `${riverTop}`);
+    lineGroup.appendChild(v1);
+
+    const v2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    v2.setAttribute("x1", `${x}`);
+    v2.setAttribute("x2", `${x}`);
+    v2.setAttribute("y1", `${riverBottom}`);
+    v2.setAttribute("y2", `${100 - startY}`);
+    lineGroup.appendChild(v2);
+  }
+
+  const palaceGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  palaceGroup.setAttribute("stroke", "var(--line-soft)");
+  palaceGroup.setAttribute("stroke-width", "0.32");
+
+  const left = startX + 3 * stepX;
+  const right = startX + 5 * stepX;
+  const top = startY;
+  const topBottom = startY + 2 * stepY;
+  const bottomTop = startY + 7 * stepY;
+  const bottom = startY + 9 * stepY;
+
+  const diag = (x1, y1, x2, y2) => {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    l.setAttribute("x1", `${x1}`);
+    l.setAttribute("y1", `${y1}`);
+    l.setAttribute("x2", `${x2}`);
+    l.setAttribute("y2", `${y2}`);
+    palaceGroup.appendChild(l);
+  };
+
+  diag(left, top, right, topBottom);
+  diag(right, top, left, topBottom);
+  diag(left, bottomTop, right, bottom);
+  diag(right, bottomTop, left, bottom);
+
+  svg.appendChild(lineGroup);
+  svg.appendChild(palaceGroup);
+  return svg;
 }
 
 function isStarPoint(x, y) {
@@ -186,7 +245,8 @@ function renderPieces() {
       const label = pieceText[piece.type];
       el.textContent = label && typeof label === "object" ? label[piece.side] : label;
       el.dataset.id = piece.id;
-      el.addEventListener("pointerdown", onPiecePointerDown);
+      el.draggable = false;
+      el.addEventListener("dragstart", (e) => e.preventDefault());
       el.addEventListener("click", onPieceClick);
       el.addEventListener("touchstart", onPieceTouchStart, { passive: false });
       cell.appendChild(el);
@@ -233,82 +293,6 @@ function removePiece(id) {
   pieces = pieces.filter((p) => p.id !== id);
 }
 
-function onPiecePointerDown(event) {
-  if (completed) return;
-  const pieceId = event.currentTarget.dataset.id;
-  const piece = getPieceById(pieceId);
-  if (!piece) return;
-  if (currentTurn !== "black" || piece.side !== "black") {
-    statusBox.textContent = "现在是红方回合。";
-    return;
-  }
-
-  dragState.active = true;
-  dragState.moved = false;
-  dragState.pieceId = pieceId;
-  dragState.origin = { x: piece.x, y: piece.y };
-  dragState.pointerId = event.pointerId;
-  dragState.startX = event.clientX;
-  dragState.startY = event.clientY;
-  event.currentTarget.setPointerCapture(event.pointerId);
-  boardEl.classList.add("dragging");
-
-  function onMove(moveEvent) {
-    if (!dragState.active) return;
-    const dx = moveEvent.clientX - dragState.startX;
-    const dy = moveEvent.clientY - dragState.startY;
-    if (!dragState.moved && Math.hypot(dx, dy) > 6) {
-      dragState.moved = true;
-      createGhost(piece, moveEvent.clientX, moveEvent.clientY);
-      event.currentTarget.classList.add("drag-hidden");
-    }
-    if (dragState.moved && dragState.ghost) {
-      dragState.ghost.style.left = `${moveEvent.clientX - 26}px`;
-      dragState.ghost.style.top = `${moveEvent.clientY - 26}px`;
-    }
-  }
-
-  function onUp(upEvent) {
-    event.currentTarget.releasePointerCapture(event.pointerId);
-    window.removeEventListener("pointermove", onMove);
-    window.removeEventListener("pointerup", onUp);
-    boardEl.classList.remove("dragging");
-
-    const wasDrag = dragState.moved;
-    cleanupGhost(event.currentTarget);
-
-    if (!wasDrag) {
-      handleClickSelection(pieceId);
-      dragState.suppressClick = { id: pieceId, time: performance.now() };
-    } else {
-      const target = getCellFromPoint(upEvent.clientX, upEvent.clientY);
-      if (target) {
-        attemptMove(pieceId, target.x, target.y);
-      }
-    }
-    dragState.active = false;
-  }
-
-  window.addEventListener("pointermove", onMove);
-  window.addEventListener("pointerup", onUp);
-}
-
-function createGhost(piece, clientX, clientY) {
-  const ghost = document.createElement("div");
-  ghost.className = `piece ${piece.side} ghost`;
-  ghost.textContent = pieceText[piece.type];
-  ghost.style.left = `${clientX - 26}px`;
-  ghost.style.top = `${clientY - 26}px`;
-  document.body.appendChild(ghost);
-  dragState.ghost = ghost;
-}
-
-function cleanupGhost(originEl) {
-  if (dragState.ghost) dragState.ghost.remove();
-  dragState.ghost = null;
-  originEl.classList.remove("drag-hidden");
-}
-
 function getCellFromPoint(x, y) {
   const el = document.elementFromPoint(x, y);
   if (!el) return null;
@@ -339,13 +323,6 @@ function onPieceClick(event) {
   const pieceId = event.currentTarget.dataset.id;
   const piece = getPieceById(pieceId);
   if (!piece) return;
-  if (
-    dragState.suppressClick &&
-    dragState.suppressClick.id === pieceId &&
-    performance.now() - dragState.suppressClick.time < 400
-  ) {
-    return;
-  }
   if (currentTurn !== "black" || piece.side !== "black") {
     if (!selectedId) {
       statusBox.textContent = "现在是红方回合。";
@@ -367,71 +344,8 @@ function onPieceTouchStart(event) {
     }
     return;
   }
-  const touch = event.changedTouches && event.changedTouches[0];
-  if (!touch) return;
   event.preventDefault();
-
-  dragState.active = true;
-  dragState.moved = false;
-  dragState.pieceId = pieceId;
-  dragState.origin = { x: piece.x, y: piece.y };
-  dragState.touchId = touch.identifier;
-  dragState.startX = touch.clientX;
-  dragState.startY = touch.clientY;
-  boardEl.classList.add("dragging");
-
-  const originEl = event.currentTarget;
-
-  function onTouchMove(moveEvent) {
-    if (!dragState.active) return;
-    const moveTouch = Array.from(moveEvent.changedTouches).find(
-      (t) => t.identifier === dragState.touchId
-    );
-    if (!moveTouch) return;
-    const dx = moveTouch.clientX - dragState.startX;
-    const dy = moveTouch.clientY - dragState.startY;
-    if (!dragState.moved && Math.hypot(dx, dy) > 6) {
-      dragState.moved = true;
-      createGhost(piece, moveTouch.clientX, moveTouch.clientY);
-      originEl.classList.add("drag-hidden");
-    }
-    if (dragState.moved && dragState.ghost) {
-      dragState.ghost.style.left = `${moveTouch.clientX - 26}px`;
-      dragState.ghost.style.top = `${moveTouch.clientY - 26}px`;
-    }
-    moveEvent.preventDefault();
-  }
-
-  function onTouchEnd(endEvent) {
-    const endTouch = Array.from(endEvent.changedTouches).find(
-      (t) => t.identifier === dragState.touchId
-    );
-    if (!endTouch) return;
-    window.removeEventListener("touchmove", onTouchMove);
-    window.removeEventListener("touchend", onTouchEnd);
-    window.removeEventListener("touchcancel", onTouchEnd);
-    boardEl.classList.remove("dragging");
-
-    const wasDrag = dragState.moved;
-    cleanupGhost(originEl);
-
-    if (!wasDrag) {
-      handleClickSelection(pieceId);
-      dragState.suppressClick = { id: pieceId, time: performance.now() };
-    } else {
-      const target = getCellFromPoint(endTouch.clientX, endTouch.clientY);
-      if (target) {
-        attemptMove(pieceId, target.x, target.y);
-      }
-    }
-    dragState.active = false;
-    dragState.touchId = null;
-    endEvent.preventDefault();
-  }
-
-  window.addEventListener("touchmove", onTouchMove, { passive: false });
-  window.addEventListener("touchend", onTouchEnd, { passive: false });
-  window.addEventListener("touchcancel", onTouchEnd, { passive: false });
+  handleClickSelection(pieceId);
 }
 
 boardEl.addEventListener("click", (event) => {
