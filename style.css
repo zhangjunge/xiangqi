@@ -19,7 +19,6 @@ body {
   font-family: "Noto Serif SC", "PingFang SC", "Microsoft YaHei", serif;
   color: var(--ink);
   background: radial-gradient(circle at top left, #fff7e8 0%, #f1e0c6 48%, #e3c79c 100%);
-  overflow-x: hidden;
 }
 
 .page {
@@ -430,15 +429,21 @@ body {
   }
 
   .board-section > :not(.board) {
-    width: min(100%, 760px);
+    width: min(calc(100vw - 28px), 760px);
   }
 
   .board {
-    width: min(100%, calc((100dvh - 220px) * 0.9));
-    max-width: 760px;
+    width: min(calc(100vw - 28px), calc((100svh - 220px) * 0.9), 760px);
+    max-width: calc(100vw - 28px);
   }
 
   .level-control {
     align-items: flex-start;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 1024px) {
+  .board {
+    width: min(calc(100vw - 28px), calc((100vh - 220px) * 0.9), 760px);
   }
 }
