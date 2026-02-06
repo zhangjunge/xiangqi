@@ -19,6 +19,7 @@ body {
   font-family: "Noto Serif SC", "PingFang SC", "Microsoft YaHei", serif;
   color: var(--ink);
   background: radial-gradient(circle at top left, #fff7e8 0%, #f1e0c6 48%, #e3c79c 100%);
+  overflow-x: hidden;
 }
 
 .page {
@@ -80,6 +81,7 @@ body {
 
 .panel-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -330,6 +332,10 @@ body {
   align-items: center;
 }
 
+.level-control > * {
+  min-width: 0;
+}
+
 .level-control h2 {
   margin: 4px 0;
 }
@@ -356,6 +362,7 @@ body {
 
 .board-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -387,6 +394,35 @@ body {
 
   .main {
     grid-template-columns: 1fr;
+  }
+
+  .board-section {
+    justify-items: stretch;
+  }
+
+  .board-section > :not(.board) {
+    width: 100%;
+  }
+
+  .board {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .level-control {
+    align-items: flex-start;
+  }
+}
+
+@media (orientation: portrait) {
+  .page {
+    max-width: none;
+    padding: 14px;
+  }
+
+  .main {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .board-section {
