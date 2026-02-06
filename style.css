@@ -147,11 +147,11 @@ body {
 }
 
 .board-section > :not(.board) {
-  width: min(94vw, 860px);
+  width: min(94vw, 820px);
 }
 
 .board {
-  width: min(94vw, 860px);
+  width: min(94vw, 820px);
   aspect-ratio: 9 / 10;
   background: linear-gradient(180deg, #f5e1bf 0%, #e9c88f 100%);
   border: 6px solid #8a5b2b;
@@ -426,16 +426,16 @@ body {
   }
 
   .board-section {
-    justify-items: stretch;
+    justify-items: center;
   }
 
   .board-section > :not(.board) {
-    width: 100%;
+    width: min(100%, 760px);
   }
 
   .board {
-    width: 100%;
-    max-width: 100%;
+    width: min(100%, calc((100dvh - 220px) * 0.9));
+    max-width: 760px;
   }
 
   .level-control {
