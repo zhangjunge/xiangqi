@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>少儿中国象棋教学小游戏</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-text">
+        <h1>象棋小课堂</h1>
+        <p>循序渐进的迷你关卡，帮小朋友练习常见走法与吃子技巧。</p>
+      </div>
+      <div class="hero-badge">7岁+ · 已懂规则</div>
+    </header>
+
+    <main class="main">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="level-tag">关卡 <span id="level-index">1</span>/<span id="level-total">1</span></div>
+            <h2 id="level-title">关卡标题</h2>
+            <p id="level-goal">目标说明</p>
+          </div>
+          <div class="panel-actions">
+            <button id="prev-level">上一关</button>
+            <button id="next-level">下一关</button>
+          </div>
+        </div>
+        <div class="tips">
+          <div class="tip-box">
+            <strong>教学提示</strong>
+            <p id="level-tip">提示内容</p>
+            <button id="show-hint">再给我一个提示</button>
+          </div>
+          <div class="status-box" id="status-box">准备开始！</div>
+        </div>
+      </section>
+
+      <section class="board-section">
+        <div class="board" id="board"></div>
+        <div class="legend">
+          <div><span class="chip red"></span>红方：你</div>
+          <div><span class="chip black"></span>黑方：关卡固定棋子</div>
+        </div>
+        <div class="board-actions">
+          <button id="reset-level">重置本关</button>
+          <button id="toggle-grid">显示/隐藏坐标</button>
+        </div>
+      </section>
+
+      <section class="panel rules">
+        <h3>操作方法</h3>
+        <div class="rules-grid">
+          <div>1. 点击红方棋子选择。</div>
+          <div>2. 点击目标格子完成走子或吃子。</div>
+          <div>3. 完成目标即可过关。</div>
+          <div>4. 走错会提示原因。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
