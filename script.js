@@ -28,76 +28,70 @@ const pieceText = {
 
 const levels = [
   {
-    title: "对战·入门",
-    goal: "你执黑，红方先手。目标：吃掉对方将（帅）。",
+    title: "对战·入门开局",
+    goal: "你执黑，红方先手。双方 16 子标准开局，按规则一步步下。",
     tips: [
       "红方是机器，黑方由你操作。",
-      "不考虑将军规则，直接吃掉对方将即可。",
-      "先观察红方走子，再找吃子机会。",
+      "标准开局摆法：车马象士将士象马车。",
+      "注意将军/应将，不能送将。",
     ],
     difficulty: "easy",
     pieces: [
+      { id: "rr1", type: "r", side: "red", x: 0, y: 9 },
+      { id: "rn1", type: "n", side: "red", x: 1, y: 9 },
+      { id: "rb1", type: "b", side: "red", x: 2, y: 9 },
+      { id: "ra1", type: "a", side: "red", x: 3, y: 9 },
       { id: "rk", type: "k", side: "red", x: 4, y: 9 },
-      { id: "rr1", type: "r", side: "red", x: 4, y: 7 },
-      { id: "rp1", type: "p", side: "red", x: 3, y: 6 },
-      { id: "rp2", type: "p", side: "red", x: 5, y: 6 },
+      { id: "ra2", type: "a", side: "red", x: 5, y: 9 },
+      { id: "rb2", type: "b", side: "red", x: 6, y: 9 },
+      { id: "rn2", type: "n", side: "red", x: 7, y: 9 },
+      { id: "rr2", type: "r", side: "red", x: 8, y: 9 },
+      { id: "rc1", type: "c", side: "red", x: 1, y: 7 },
+      { id: "rc2", type: "c", side: "red", x: 7, y: 7 },
+      { id: "rp1", type: "p", side: "red", x: 0, y: 6 },
+      { id: "rp2", type: "p", side: "red", x: 2, y: 6 },
+      { id: "rp3", type: "p", side: "red", x: 4, y: 6 },
+      { id: "rp4", type: "p", side: "red", x: 6, y: 6 },
+      { id: "rp5", type: "p", side: "red", x: 8, y: 6 },
+      { id: "br1", type: "r", side: "black", x: 0, y: 0 },
+      { id: "bn1", type: "n", side: "black", x: 1, y: 0 },
+      { id: "bb1", type: "b", side: "black", x: 2, y: 0 },
+      { id: "ba1", type: "a", side: "black", x: 3, y: 0 },
       { id: "bk", type: "k", side: "black", x: 4, y: 0 },
-      { id: "br1", type: "r", side: "black", x: 4, y: 2 },
-      { id: "bp1", type: "p", side: "black", x: 3, y: 3 },
-      { id: "bp2", type: "p", side: "black", x: 5, y: 3 },
+      { id: "ba2", type: "a", side: "black", x: 5, y: 0 },
+      { id: "bb2", type: "b", side: "black", x: 6, y: 0 },
+      { id: "bn2", type: "n", side: "black", x: 7, y: 0 },
+      { id: "br2", type: "r", side: "black", x: 8, y: 0 },
+      { id: "bc1", type: "c", side: "black", x: 1, y: 2 },
+      { id: "bc2", type: "c", side: "black", x: 7, y: 2 },
+      { id: "bp1", type: "p", side: "black", x: 0, y: 3 },
+      { id: "bp2", type: "p", side: "black", x: 2, y: 3 },
+      { id: "bp3", type: "p", side: "black", x: 4, y: 3 },
+      { id: "bp4", type: "p", side: "black", x: 6, y: 3 },
+      { id: "bp5", type: "p", side: "black", x: 8, y: 3 },
     ],
   },
   {
-    title: "对战·进阶",
-    goal: "加入炮与马，红方会优先吃子。",
+    title: "对战·标准开局",
+    goal: "双方 16 子标准开局，红方会优先吃子。",
     tips: [
-      "注意炮的隔子吃法。",
-      "马腿被堵就不能跳。",
+      "红方更倾向于吃子。",
+      "注意兵线推进与中路控制。",
       "先稳住将，再找机会吃子。",
     ],
     difficulty: "medium",
-    pieces: [
-      { id: "rk", type: "k", side: "red", x: 4, y: 9 },
-      { id: "rr1", type: "r", side: "red", x: 0, y: 9 },
-      { id: "rn1", type: "n", side: "red", x: 2, y: 7 },
-      { id: "rc1", type: "c", side: "red", x: 6, y: 7 },
-      { id: "rp1", type: "p", side: "red", x: 4, y: 6 },
-      { id: "bk", type: "k", side: "black", x: 4, y: 0 },
-      { id: "br1", type: "r", side: "black", x: 8, y: 0 },
-      { id: "bn1", type: "n", side: "black", x: 6, y: 2 },
-      { id: "bc1", type: "c", side: "black", x: 2, y: 2 },
-      { id: "bp1", type: "p", side: "black", x: 4, y: 3 },
-    ],
+    pieces: [],
   },
   {
-    title: "对战·挑战",
-    goal: "接近正式对局阵容，红方会选择最优交换。",
+    title: "对战·进阶开局",
+    goal: "双方 16 子标准开局，红方会选择更优交换。",
     tips: [
-      "优先保护将与关键子力。",
-      "留意双车与双炮的威胁。",
+      "红方更关注子力价值。",
+      "注意炮马配合与对将威胁。",
       "稳住阵型，再找突破点。",
     ],
     difficulty: "hard",
-    pieces: [
-      { id: "rk", type: "k", side: "red", x: 4, y: 9 },
-      { id: "rr1", type: "r", side: "red", x: 0, y: 9 },
-      { id: "rr2", type: "r", side: "red", x: 8, y: 9 },
-      { id: "rn1", type: "n", side: "red", x: 1, y: 7 },
-      { id: "rc1", type: "c", side: "red", x: 7, y: 7 },
-      { id: "rb1", type: "b", side: "red", x: 2, y: 9 },
-      { id: "ra1", type: "a", side: "red", x: 3, y: 9 },
-      { id: "rp1", type: "p", side: "red", x: 0, y: 6 },
-      { id: "rp2", type: "p", side: "red", x: 6, y: 6 },
-      { id: "bk", type: "k", side: "black", x: 4, y: 0 },
-      { id: "br1", type: "r", side: "black", x: 0, y: 0 },
-      { id: "br2", type: "r", side: "black", x: 8, y: 0 },
-      { id: "bn1", type: "n", side: "black", x: 7, y: 2 },
-      { id: "bc1", type: "c", side: "black", x: 1, y: 2 },
-      { id: "bb1", type: "b", side: "black", x: 6, y: 0 },
-      { id: "ba1", type: "a", side: "black", x: 5, y: 0 },
-      { id: "bp1", type: "p", side: "black", x: 2, y: 3 },
-      { id: "bp2", type: "p", side: "black", x: 8, y: 3 },
-    ],
+    pieces: [],
   },
 ];
 
@@ -115,6 +109,43 @@ const dragState = {};
 
 function clonePieces(levelPieces) {
   return levelPieces.map((p) => ({ ...p }));
+}
+
+function buildInitialPieces() {
+  return [
+    { id: "rr1", type: "r", side: "red", x: 0, y: 9 },
+    { id: "rn1", type: "n", side: "red", x: 1, y: 9 },
+    { id: "rb1", type: "b", side: "red", x: 2, y: 9 },
+    { id: "ra1", type: "a", side: "red", x: 3, y: 9 },
+    { id: "rk", type: "k", side: "red", x: 4, y: 9 },
+    { id: "ra2", type: "a", side: "red", x: 5, y: 9 },
+    { id: "rb2", type: "b", side: "red", x: 6, y: 9 },
+    { id: "rn2", type: "n", side: "red", x: 7, y: 9 },
+    { id: "rr2", type: "r", side: "red", x: 8, y: 9 },
+    { id: "rc1", type: "c", side: "red", x: 1, y: 7 },
+    { id: "rc2", type: "c", side: "red", x: 7, y: 7 },
+    { id: "rp1", type: "p", side: "red", x: 0, y: 6 },
+    { id: "rp2", type: "p", side: "red", x: 2, y: 6 },
+    { id: "rp3", type: "p", side: "red", x: 4, y: 6 },
+    { id: "rp4", type: "p", side: "red", x: 6, y: 6 },
+    { id: "rp5", type: "p", side: "red", x: 8, y: 6 },
+    { id: "br1", type: "r", side: "black", x: 0, y: 0 },
+    { id: "bn1", type: "n", side: "black", x: 1, y: 0 },
+    { id: "bb1", type: "b", side: "black", x: 2, y: 0 },
+    { id: "ba1", type: "a", side: "black", x: 3, y: 0 },
+    { id: "bk", type: "k", side: "black", x: 4, y: 0 },
+    { id: "ba2", type: "a", side: "black", x: 5, y: 0 },
+    { id: "bb2", type: "b", side: "black", x: 6, y: 0 },
+    { id: "bn2", type: "n", side: "black", x: 7, y: 0 },
+    { id: "br2", type: "r", side: "black", x: 8, y: 0 },
+    { id: "bc1", type: "c", side: "black", x: 1, y: 2 },
+    { id: "bc2", type: "c", side: "black", x: 7, y: 2 },
+    { id: "bp1", type: "p", side: "black", x: 0, y: 3 },
+    { id: "bp2", type: "p", side: "black", x: 2, y: 3 },
+    { id: "bp3", type: "p", side: "black", x: 4, y: 3 },
+    { id: "bp4", type: "p", side: "black", x: 6, y: 3 },
+    { id: "bp5", type: "p", side: "black", x: 8, y: 3 },
+  ];
 }
 
 function buildBoard() {
@@ -247,15 +278,18 @@ function renderPieces() {
       el.dataset.id = piece.id;
       el.draggable = false;
       el.addEventListener("dragstart", (e) => e.preventDefault());
-      el.addEventListener("click", onPieceClick);
       el.addEventListener("touchstart", onPieceTouchStart, { passive: false });
       cell.appendChild(el);
     }
   });
+  renderHighlights();
 }
 
 function renderLevel() {
   const level = levels[currentLevelIndex];
+  if (!level.pieces || level.pieces.length === 0) {
+    level.pieces = buildInitialPieces();
+  }
   levelIndexEl.textContent = String(currentLevelIndex + 1);
   levelTotalEl.textContent = String(levels.length);
   levelTitleEl.textContent = level.title;
@@ -318,19 +352,30 @@ function handleClickSelection(pieceId) {
   renderPieces();
 }
 
-function onPieceClick(event) {
-  if (completed) return;
-  const pieceId = event.currentTarget.dataset.id;
-  const piece = getPieceById(pieceId);
-  if (!piece) return;
-  if (currentTurn !== "black" || piece.side !== "black") {
-    if (!selectedId) {
-      statusBox.textContent = "现在是红方回合。";
+function renderHighlights() {
+  const cells = boardEl.querySelectorAll(".cell");
+  cells.forEach((cell) => {
+    cell.classList.remove("legal");
+    cell.classList.remove("capture");
+  });
+  if (!selectedId) return;
+  if (currentTurn !== "black") return;
+  const piece = getPieceById(selectedId);
+  if (!piece || piece.side !== "black") return;
+  for (let x = 0; x < BOARD_W; x += 1) {
+    for (let y = 0; y < BOARD_H; y += 1) {
+      if (piece.x === x && piece.y === y) continue;
+      const target = pieceAt(x, y);
+      if (target && target.side === piece.side) continue;
+      const validation = validateMove(piece, x, y, Boolean(target));
+      if (!validation.ok) continue;
+      if (wouldLeaveKingInCheck(piece, x, y, target)) continue;
+      const cell = boardEl.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+      if (!cell) continue;
+      cell.classList.add("legal");
+      if (target) cell.classList.add("capture");
     }
-    return;
   }
-  handleClickSelection(pieceId);
-  event.stopPropagation();
 }
 
 function onPieceTouchStart(event) {
@@ -350,6 +395,24 @@ function onPieceTouchStart(event) {
 
 boardEl.addEventListener("click", (event) => {
   if (completed) return;
+  const pieceEl = event.target.classList.contains("piece") ? event.target : event.target.closest(".piece");
+  if (pieceEl) {
+    const pieceId = pieceEl.dataset.id;
+    const piece = getPieceById(pieceId);
+    if (!piece) return;
+    if (currentTurn !== "black") {
+      if (!selectedId) {
+        statusBox.textContent = "现在是红方回合。";
+      }
+      return;
+    }
+    if (piece.side === "black") {
+      handleClickSelection(pieceId);
+    } else if (selectedId) {
+      attemptMove(selectedId, piece.x, piece.y);
+    }
+    return;
+  }
   if (currentTurn !== "black") return;
   const cell = event.target.classList.contains("cell")
     ? event.target
@@ -357,7 +420,13 @@ boardEl.addEventListener("click", (event) => {
   if (!cell) return;
   const x = Number(cell.dataset.x);
   const y = Number(cell.dataset.y);
-  if (!selectedId) return;
+  if (!selectedId) {
+    const targetPiece = pieceAt(x, y);
+    if (targetPiece && targetPiece.side === "black") {
+      handleClickSelection(targetPiece.id);
+    }
+    return;
+  }
   attemptMove(selectedId, x, y);
 });
 
@@ -396,6 +465,12 @@ function attemptMove(pieceId, toX, toY) {
   const validation = validateMove(piece, toX, toY, Boolean(targetPiece));
   if (!validation.ok) {
     statusBox.textContent = validation.reason;
+    playSound("error");
+    return;
+  }
+
+  if (wouldLeaveKingInCheck(piece, toX, toY, targetPiece)) {
+    statusBox.textContent = "不能送将。";
     playSound("error");
     return;
   }
@@ -480,6 +555,7 @@ function validateMove(piece, toX, toY, isCapture) {
 }
 
 function countBetween(fromX, fromY, toX, toY) {
+  if (fromX === toX && fromY === toY) return 0;
   let count = 0;
   if (fromX === toX) {
     const step = fromY < toY ? 1 : -1;
@@ -490,6 +566,131 @@ function countBetween(fromX, fromY, toX, toY) {
     const step = fromX < toX ? 1 : -1;
     for (let x = fromX + step; x !== toX; x += step) {
       if (pieceAt(x, fromY)) count += 1;
+    }
+  }
+  return count;
+}
+
+function cloneBoardState() {
+  return pieces.map((p) => ({ ...p }));
+}
+
+function applyMove(state, pieceId, toX, toY) {
+  const moving = state.find((p) => p.id === pieceId);
+  if (!moving) return;
+  const targetIndex = state.findIndex((p) => p.x === toX && p.y === toY);
+  if (targetIndex !== -1) state.splice(targetIndex, 1);
+  moving.x = toX;
+  moving.y = toY;
+}
+
+function findKing(state, side) {
+  return state.find((p) => p.side === side && p.type === "k");
+}
+
+function wouldLeaveKingInCheck(piece, toX, toY, targetPiece) {
+  const state = cloneBoardState();
+  applyMove(state, piece.id, toX, toY);
+  const king = findKing(state, piece.side);
+  if (!king) return false;
+  if (kingsFacing(state)) return true;
+  return isSquareAttacked(state, king.x, king.y, piece.side === "red" ? "black" : "red");
+}
+
+function isSquareAttacked(state, x, y, bySide) {
+  for (const p of state) {
+    if (p.side !== bySide) continue;
+    if (canAttack(state, p, x, y)) return true;
+  }
+  const attackerKing = state.find((p) => p.side === bySide && p.type === "k");
+  if (attackerKing && attackerKing.x === x) {
+    const between = countBetweenState(state, attackerKing.x, attackerKing.y, x, y);
+    if (between === 0) return true;
+  }
+  return false;
+}
+
+function kingsFacing(state) {
+  const redKing = findKing(state, "red");
+  const blackKing = findKing(state, "black");
+  if (!redKing || !blackKing) return false;
+  if (redKing.x !== blackKing.x) return false;
+  return countBetweenState(state, redKing.x, redKing.y, blackKing.x, blackKing.y) === 0;
+}
+
+function canAttack(state, piece, toX, toY) {
+  const dx = toX - piece.x;
+  const dy = toY - piece.y;
+  const absX = Math.abs(dx);
+  const absY = Math.abs(dy);
+  const forward = piece.side === "red" ? -1 : 1;
+  const pieceBetween = () => countBetweenState(state, piece.x, piece.y, toX, toY);
+  switch (piece.type) {
+    case "r":
+      if (dx !== 0 && dy !== 0) return false;
+      return pieceBetween() === 0;
+    case "c":
+      if (dx !== 0 && dy !== 0) return false;
+      return pieceBetween() === 1;
+    case "n": {
+      if (!((absX === 1 && absY === 2) || (absX === 2 && absY === 1))) return false;
+      const legX = piece.x + (absX === 2 ? dx / 2 : 0);
+      const legY = piece.y + (absY === 2 ? dy / 2 : 0);
+      return !pieceAtState(state, legX, legY);
+    }
+    case "b": {
+      if (!(absX === 2 && absY === 2)) return false;
+      const eyeX = piece.x + dx / 2;
+      const eyeY = piece.y + dy / 2;
+      if (pieceAtState(state, eyeX, eyeY)) return false;
+      if (piece.side === "red" && toY < 5) return false;
+      if (piece.side === "black" && toY > 4) return false;
+      return true;
+    }
+    case "a": {
+      if (!(absX === 1 && absY === 1)) return false;
+      if (piece.side === "red" && !inRedPalace(toX, toY)) return false;
+      if (piece.side === "black" && !inBlackPalace(toX, toY)) return false;
+      return true;
+    }
+    case "k": {
+      if (!((absX === 1 && absY === 0) || (absX === 0 && absY === 1))) return false;
+      if (piece.side === "red" && !inRedPalace(toX, toY)) return false;
+      if (piece.side === "black" && !inBlackPalace(toX, toY)) return false;
+      return true;
+    }
+    case "p": {
+      if (dy !== forward && dy !== 0) return false;
+      if (dy === 0 && absX !== 1) return false;
+      if (dy === forward && absX !== 0) return false;
+      if (piece.side === "red") {
+        if (piece.y >= 5) return dy === -1 && dx === 0;
+      } else {
+        if (piece.y <= 4) return dy === 1 && dx === 0;
+      }
+      return true;
+    }
+    default:
+      return false;
+  }
+}
+
+function pieceAtState(state, x, y) {
+  return state.find((p) => p.x === x && p.y === y);
+}
+
+function countBetweenState(state, fromX, fromY, toX, toY) {
+  if (fromX === toX && fromY === toY) return 0;
+  let count = 0;
+  if (fromX === toX) {
+    const step = fromY < toY ? 1 : -1;
+    for (let y = fromY + step; y !== toY; y += step) {
+      if (pieceAtState(state, fromX, y)) count += 1;
+    }
+  } else if (fromY === toY) {
+    const step = fromX < toX ? 1 : -1;
+    for (let x = fromX + step; x !== toX; x += step) {
+      if (pieceAtState(state, x, fromY)) count += 1;
     }
   }
   return count;
@@ -525,6 +726,8 @@ function handleAfterMove(capturedPiece) {
     statusBox.textContent = "轮到你（黑方）";
     playSound("move");
   }
+
+  checkGameState();
 }
 
 function scheduleAiMove() {
@@ -539,7 +742,11 @@ function aiMove() {
   const level = levels[currentLevelIndex];
   const moves = getAllLegalMoves("red");
   if (moves.length === 0) {
-    winGame("黑方胜利！");
+    if (isInCheck("red")) {
+      winGame("黑方胜利！");
+    } else {
+      winGame("和棋！");
+    }
     return;
   }
 
@@ -618,6 +825,7 @@ function getAllLegalMoves(side) {
         if (target && target.side === side) continue;
         const validation = validateMove(piece, x, y, Boolean(target));
         if (!validation.ok) continue;
+        if (wouldLeaveKingInCheck(piece, x, y, target)) continue;
         moves.push({
           pieceId: piece.id,
           fromX: piece.x,
@@ -630,6 +838,31 @@ function getAllLegalMoves(side) {
     }
   }
   return moves;
+}
+
+function isInCheck(side) {
+  const king = findKing(pieces, side);
+  if (!king) return false;
+  const attacker = side === "red" ? "black" : "red";
+  return isSquareAttacked(pieces, king.x, king.y, attacker);
+}
+
+function checkGameState() {
+  if (completed) return;
+  const sideToMove = currentTurn;
+  const inCheck = isInCheck(sideToMove);
+  const legalMoves = getAllLegalMoves(sideToMove);
+  if (legalMoves.length === 0) {
+    if (inCheck) {
+      winGame(sideToMove === "red" ? "黑方胜利！" : "红方胜利！");
+    } else {
+      winGame("和棋！");
+    }
+    return;
+  }
+  if (inCheck) {
+    statusBox.textContent = sideToMove === "red" ? "将军！红方被将军" : "将军！黑方被将军";
+  }
 }
 
 prevBtn.addEventListener("click", () => {
