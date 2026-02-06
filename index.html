@@ -17,8 +17,9 @@
     </header>
 
     <main class="main">
-      <section class="panel">
-        <div class="panel-header">
+      <section class="board-section">
+        <div class="board" id="board"></div>
+        <div class="level-control">
           <div>
             <div class="level-tag">关卡 <span id="level-index">1</span>/<span id="level-total">1</span></div>
             <h2 id="level-title">关卡标题</h2>
@@ -29,18 +30,6 @@
             <button id="next-level">下一关</button>
           </div>
         </div>
-        <div class="tips">
-          <div class="tip-box">
-            <strong>教学提示</strong>
-            <p id="level-tip">提示内容</p>
-            <button id="show-hint">再给我一个提示</button>
-          </div>
-          <div class="status-box" id="status-box">准备开始！</div>
-        </div>
-      </section>
-
-      <section class="board-section">
-        <div class="board" id="board"></div>
         <div class="legend">
           <div><span class="chip red"></span>红方：机器</div>
           <div><span class="chip black"></span>黑方：你</div>
@@ -48,6 +37,14 @@
         <div class="board-actions">
           <button id="reset-level">重置本关</button>
           <button id="toggle-grid">显示/隐藏坐标</button>
+        </div>
+        <div class="tips">
+          <div class="tip-box">
+            <strong>教学提示</strong>
+            <p id="level-tip">提示内容</p>
+            <button id="show-hint">再给我一个提示</button>
+          </div>
+          <div class="status-box" id="status-box">准备开始！</div>
         </div>
       </section>
 
