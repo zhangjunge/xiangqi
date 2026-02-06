@@ -381,12 +381,25 @@ body {
 }
 
 @media (max-width: 900px) {
+  .page {
+    padding: 16px;
+  }
+
   .main {
     grid-template-columns: 1fr;
   }
 
+  .board-section {
+    justify-items: stretch;
+  }
+
+  .board-section > :not(.board) {
+    width: 100%;
+  }
+
   .board {
     width: 100%;
+    max-width: 100%;
   }
 
   .level-control {
