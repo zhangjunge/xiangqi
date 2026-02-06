@@ -104,6 +104,8 @@ let showCoords = false;
 let completed = false;
 let currentTurn = "red";
 let audioEnabled = true;
+let audioCtx = null;
+const lastSoundAt = {};
 
 const dragState = {};
 
@@ -346,8 +348,10 @@ function getCellFromPoint(x, y) {
 function handleClickSelection(pieceId) {
   if (selectedId === pieceId) {
     selectedId = null;
+    playSound("select");
   } else {
     selectedId = pieceId;
+    playSound("select");
   }
   renderPieces();
 }
@@ -716,15 +720,15 @@ function handleAfterMove(capturedPiece) {
     return;
   }
 
+  playSound(capturedPiece ? "capture" : "move");
+
   if (currentTurn === "black") {
     currentTurn = "red";
     statusBox.textContent = "红方思考中…";
-    playSound("move");
     scheduleAiMove();
   } else {
     currentTurn = "black";
     statusBox.textContent = "轮到你（黑方）";
-    playSound("move");
   }
 
   checkGameState();
@@ -862,12 +866,14 @@ function checkGameState() {
   }
   if (inCheck) {
     statusBox.textContent = sideToMove === "red" ? "将军！红方被将军" : "将军！黑方被将军";
+    playSound("check");
   }
 }
 
 prevBtn.addEventListener("click", () => {
   if (currentLevelIndex > 0) {
     currentLevelIndex -= 1;
+    playSound("level");
     renderLevel();
   }
 });
@@ -875,6 +881,7 @@ prevBtn.addEventListener("click", () => {
 nextBtn.addEventListener("click", () => {
   if (currentLevelIndex < levels.length - 1) {
     currentLevelIndex += 1;
+    playSound("level");
     renderLevel();
   }
 });
@@ -885,6 +892,7 @@ resetBtn.addEventListener("click", () => {
   completed = false;
   currentTurn = "red";
   statusBox.textContent = "红方思考中…";
+  playSound("reset");
   renderPieces();
   scheduleAiMove();
 });
@@ -893,15 +901,56 @@ hintBtn.addEventListener("click", () => {
   const level = levels[currentLevelIndex];
   hintIndex = (hintIndex + 1) % level.tips.length;
   levelTipEl.textContent = level.tips[hintIndex];
+  playSound("hint");
 });
 
 toggleGridBtn.addEventListener("click", () => {
   showCoords = !showCoords;
+  playSound("select");
   buildBoard();
   renderPieces();
 });
 
 renderLevel();
+
+function ensureAudioContext() {
+  if (audioCtx) return audioCtx;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return null;
+  audioCtx = new AudioCtx();
+  return audioCtx;
+}
+
+function playTone({ type = "sine", freq = 440, gain = 0.03, start = 0, duration = 0.14, endFreq = null }) {
+  const ctx = ensureAudioContext();
+  if (!ctx) return;
+  const now = ctx.currentTime + start;
+  const osc = ctx.createOscillator();
+  const amp = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, now);
+  if (endFreq) {
+    osc.frequency.exponentialRampToValueAtTime(Math.max(50, endFreq), now + duration);
+  }
+  amp.gain.setValueAtTime(0.001, now);
+  amp.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+  amp.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  osc.connect(amp).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + duration + 0.02);
+}
+
+function unlockAudio() {
+  const ctx = ensureAudioContext();
+  if (!ctx) return;
+  if (ctx.state === "suspended") {
+    ctx.resume().catch(() => {
+      audioEnabled = false;
+    });
+  }
+}
+
+document.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
 
 function winGame(message) {
   statusBox.textContent = message;
@@ -913,28 +962,48 @@ function winGame(message) {
 
 function playSound(kind) {
   if (!audioEnabled) return;
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  if (!AudioCtx) return;
-  const ctx = new AudioCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sine";
-  const now = ctx.currentTime;
+  const now = performance.now();
+  const minInterval = { select: 50, move: 70, capture: 90, error: 120, check: 350, hint: 120 };
+  const wait = minInterval[kind] ?? 80;
+  if (lastSoundAt[kind] && now - lastSoundAt[kind] < wait) return;
+  lastSoundAt[kind] = now;
+
   if (kind === "success") {
-    osc.frequency.setValueAtTime(620, now);
-    gain.gain.setValueAtTime(0.06, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-  } else if (kind === "error") {
-    osc.frequency.setValueAtTime(180, now);
-    gain.gain.setValueAtTime(0.05, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-  } else {
-    osc.frequency.setValueAtTime(420, now);
-    gain.gain.setValueAtTime(0.03, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    playTone({ type: "triangle", freq: 523, gain: 0.04, duration: 0.14 });
+    playTone({ type: "triangle", freq: 659, gain: 0.045, start: 0.12, duration: 0.14 });
+    playTone({ type: "triangle", freq: 784, gain: 0.05, start: 0.24, duration: 0.2 });
+    return;
   }
-  osc.connect(gain).connect(ctx.destination);
-  osc.start();
-  osc.stop(now + 0.35);
-  setTimeout(() => ctx.close(), 500);
+  if (kind === "capture") {
+    playTone({ type: "square", freq: 240, gain: 0.04, duration: 0.08 });
+    playTone({ type: "triangle", freq: 180, gain: 0.045, start: 0.06, duration: 0.16 });
+    return;
+  }
+  if (kind === "error") {
+    playTone({ type: "sawtooth", freq: 210, gain: 0.03, duration: 0.09, endFreq: 150 });
+    playTone({ type: "sawtooth", freq: 170, gain: 0.025, start: 0.08, duration: 0.08, endFreq: 130 });
+    return;
+  }
+  if (kind === "check") {
+    playTone({ type: "square", freq: 460, gain: 0.028, duration: 0.06 });
+    playTone({ type: "square", freq: 520, gain: 0.028, start: 0.07, duration: 0.06 });
+    return;
+  }
+  if (kind === "hint") {
+    playTone({ type: "sine", freq: 680, gain: 0.022, duration: 0.06 });
+    playTone({ type: "sine", freq: 760, gain: 0.022, start: 0.06, duration: 0.07 });
+    return;
+  }
+  if (kind === "level") {
+    playTone({ type: "triangle", freq: 330, gain: 0.03, duration: 0.08 });
+    playTone({ type: "triangle", freq: 494, gain: 0.03, start: 0.08, duration: 0.1 });
+    return;
+  }
+  if (kind === "reset") {
+    playTone({ type: "sine", freq: 500, gain: 0.022, duration: 0.06 });
+    playTone({ type: "sine", freq: 320, gain: 0.022, start: 0.06, duration: 0.1 });
+    return;
+  }
+
+  playTone({ type: "triangle", freq: 430, gain: 0.022, duration: 0.08 });
 }
