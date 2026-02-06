@@ -388,7 +388,7 @@ function attemptMove(pieceId, toX, toY) {
   if (piece.x === toX && piece.y === toY) return;
 
   const targetPiece = pieceAt(toX, toY);
-  if (targetPiece && targetPiece.side === "red") {
+  if (targetPiece && targetPiece.side === piece.side) {
     statusBox.textContent = "不能吃自己的棋子。";
     return;
   }
