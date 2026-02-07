@@ -127,6 +127,39 @@ const levels = [
     difficulty: "nightmare",
     pieces: [],
   },
+  {
+    title: "对战·宗师试炼",
+    goal: "双方 16 子标准开局，红方会进行更深层计算并持续压制先手。",
+    tips: [
+      "不要轻易兑掉关键子力，红方会利用先后手差距滚雪球。",
+      "每步都先检查将位安全，再考虑反击路线。",
+      "中路与肋道同时受压时，优先处理将军风险。",
+    ],
+    difficulty: "master",
+    pieces: [],
+  },
+  {
+    title: "对战·特级大师",
+    goal: "双方 16 子标准开局，红方会强化算杀与强制手段。",
+    tips: [
+      "红方会优先寻找连续将军或先手吃子。",
+      "避免给红方形成双车/车炮联动通道。",
+      "宁可少吃一子，也要先拆掉对方进攻节奏。",
+    ],
+    difficulty: "grandmaster",
+    pieces: [],
+  },
+  {
+    title: "对战·巅峰决战",
+    goal: "双方 16 子标准开局，红方几乎不留明显战术漏洞。",
+    tips: [
+      "开局失先会被快速放大，尽量争取主动。",
+      "任何一步前都先看对方两种最强反击。",
+      "如果局面被压制，优先求稳化解而非冒险抢攻。",
+    ],
+    difficulty: "legend",
+    pieces: [],
+  },
 ];
 
 let currentLevelIndex = 0;
@@ -796,9 +829,15 @@ function aiMove() {
   } else if (level.difficulty === "hard") {
     chosen = pickBestMove(moves);
   } else if (level.difficulty === "expert") {
-    chosen = pickBestMoveWithLookahead(moves, 2, 12);
+    chosen = pickBestMoveWithLookahead(moves, 2, 14);
+  } else if (level.difficulty === "nightmare") {
+    chosen = pickBestMoveWithLookahead(moves, 3, 14);
+  } else if (level.difficulty === "master") {
+    chosen = pickBestMoveWithLookahead(moves, 4, 10, false);
+  } else if (level.difficulty === "grandmaster") {
+    chosen = pickBestMoveWithLookahead(moves, 4, 12, false);
   } else {
-    chosen = pickBestMoveWithLookahead(moves, 3, 10);
+    chosen = pickBestMoveWithLookahead(moves, 4, 14, false);
   }
 
   if (!chosen) return;
@@ -850,7 +889,7 @@ function pickGreedyMove(moves) {
   return randomMove(bestCaptures);
 }
 
-function pickBestMoveWithLookahead(moves, depth, branchLimit) {
+function pickBestMoveWithLookahead(moves, depth, branchLimit, randomizeTies = true) {
   const ordered = orderMovesForSearch(cloneBoardState(), moves, "red").slice(0, branchLimit);
   let bestScore = -Infinity;
   let bestMoves = [];
@@ -865,7 +904,9 @@ function pickBestMoveWithLookahead(moves, depth, branchLimit) {
       bestMoves.push(move);
     }
   }
-  return randomMove(bestMoves.length > 0 ? bestMoves : ordered);
+  const candidates = bestMoves.length > 0 ? bestMoves : ordered;
+  if (!randomizeTies) return candidates[0] ?? null;
+  return randomMove(candidates);
 }
 
 function evaluateMove(move) {
