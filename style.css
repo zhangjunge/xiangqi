@@ -114,19 +114,27 @@ body {
   border: 2px dashed #d9b27c;
 }
 
+.tip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .tip-box p {
   margin: 6px 0 0;
   line-height: 1.4;
 }
 
 .tip-box button {
-  margin-top: 8px;
+  margin-top: 0;
   background: transparent;
   border: 2px solid var(--accent);
   color: var(--accent);
   padding: 6px 10px;
   border-radius: 10px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .status-box {

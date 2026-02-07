@@ -787,7 +787,12 @@ function handleAfterMove(capturedPiece) {
     return;
   }
 
-  playSound(capturedPiece ? "capture" : "move");
+  // 区分人机走子音效：红方（AI）走子给更明显提示
+  if (currentTurn === "red") {
+    playSound(capturedPiece ? "ai-capture" : "ai-move");
+  } else {
+    playSound(capturedPiece ? "capture" : "move");
+  }
 
   if (currentTurn === "black") {
     currentTurn = "red";
@@ -1252,7 +1257,16 @@ function winGame(message) {
 function playSound(kind) {
   if (!audioEnabled) return;
   const now = performance.now();
-  const minInterval = { select: 50, move: 70, capture: 90, error: 120, check: 350, hint: 120 };
+  const minInterval = {
+    select: 50,
+    move: 70,
+    capture: 90,
+    "ai-move": 120,
+    "ai-capture": 150,
+    error: 120,
+    check: 350,
+    hint: 120,
+  };
   const wait = minInterval[kind] ?? 80;
   if (lastSoundAt[kind] && now - lastSoundAt[kind] < wait) return;
   lastSoundAt[kind] = now;
@@ -1266,6 +1280,16 @@ function playSound(kind) {
   if (kind === "capture") {
     playTone({ type: "square", freq: 240, gain: 0.04, duration: 0.08 });
     playTone({ type: "triangle", freq: 180, gain: 0.045, start: 0.06, duration: 0.16 });
+    return;
+  }
+  if (kind === "ai-capture") {
+    playTone({ type: "square", freq: 300, gain: 0.05, duration: 0.09 });
+    playTone({ type: "triangle", freq: 210, gain: 0.055, start: 0.07, duration: 0.18 });
+    return;
+  }
+  if (kind === "ai-move") {
+    playTone({ type: "sine", freq: 430, gain: 0.03, duration: 0.08 });
+    playTone({ type: "sine", freq: 520, gain: 0.03, start: 0.07, duration: 0.1 });
     return;
   }
   if (kind === "error") {
