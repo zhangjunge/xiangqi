@@ -104,6 +104,7 @@ body {
   display: grid;
   gap: 12px;
   margin-top: 0;
+  min-width: 0;
 }
 
 .tip-box {
@@ -145,6 +146,17 @@ body {
   align-items: start;
   grid-column: 1 / -1;
   justify-items: center;
+}
+
+.top-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.top-panels > * {
+  min-width: 0;
 }
 
 .board-section > :not(.board) {
@@ -422,6 +434,10 @@ body {
     max-width: 100%;
   }
 
+  .top-panels {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
   .level-control {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
@@ -450,6 +466,10 @@ body {
   .board {
     width: min(calc(100vw - 28px), calc((100svh - 220px) * 0.9), 760px);
     max-width: calc(100vw - 28px);
+  }
+
+  .top-panels {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .level-control {
