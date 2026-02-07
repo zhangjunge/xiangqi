@@ -25,6 +25,7 @@ const pieceText = {
   c: { red: "炮", black: "炮" },
   p: { red: "兵", black: "卒" },
 };
+const PIECE_VALUES = { k: 10000, r: 900, c: 450, n: 400, b: 200, a: 200, p: 100 };
 
 const levels = [
   {
@@ -91,6 +92,39 @@ const levels = [
       "稳住阵型，再找突破点。",
     ],
     difficulty: "hard",
+    pieces: [],
+  },
+  {
+    title: "对战·高手压制",
+    goal: "双方 16 子标准开局，红方会积极争先并持续制造将军压力。",
+    tips: [
+      "双方子力完整，先稳住将位再争先手。",
+      "红方会频繁施压中路，注意车炮协防。",
+      "被将军时优先找安全解将，再考虑反击。",
+    ],
+    difficulty: "hard",
+    pieces: [],
+  },
+  {
+    title: "对战·专家残局",
+    goal: "双方 16 子标准开局，红方使用前瞻搜索，更会计算连续威胁。",
+    tips: [
+      "红方会预判后续变化，轻率吃子容易被反制。",
+      "中局要兼顾子力交换与将位安全。",
+      "每步都要看对手下一手将军点。",
+    ],
+    difficulty: "expert",
+    pieces: [],
+  },
+  {
+    title: "对战·大师挑战",
+    goal: "双方 16 子标准开局，红方更深前瞻，容错极低。",
+    tips: [
+      "先手价值很高，走子前先看三步内风险。",
+      "避免形成被双重攻击的薄弱点。",
+      "红方会算三层变化，任何失误都可能被放大。",
+    ],
+    difficulty: "nightmare",
     pieces: [],
   },
 ];
@@ -758,10 +792,13 @@ function aiMove() {
   if (level.difficulty === "easy") {
     chosen = randomMove(moves);
   } else if (level.difficulty === "medium") {
-    const captures = moves.filter((m) => m.capture);
-    chosen = captures.length > 0 ? randomMove(captures) : randomMove(moves);
-  } else {
+    chosen = pickGreedyMove(moves);
+  } else if (level.difficulty === "hard") {
     chosen = pickBestMove(moves);
+  } else if (level.difficulty === "expert") {
+    chosen = pickBestMoveWithLookahead(moves, 2, 12);
+  } else {
+    chosen = pickBestMoveWithLookahead(moves, 3, 10);
   }
 
   if (!chosen) return;
@@ -793,6 +830,44 @@ function pickBestMove(moves) {
   return randomMove(best);
 }
 
+function pickGreedyMove(moves) {
+  const captures = moves.filter((m) => m.capture);
+  if (captures.length === 0) return randomMove(moves);
+  let bestValue = -Infinity;
+  let bestCaptures = [];
+  for (const move of captures) {
+    const gain = PIECE_VALUES[move.capture.type] ?? 0;
+    const attacker = getPieceById(move.pieceId);
+    const cost = attacker ? (PIECE_VALUES[attacker.type] ?? 0) : 0;
+    const score = gain - cost * 0.2;
+    if (score > bestValue) {
+      bestValue = score;
+      bestCaptures = [move];
+    } else if (score === bestValue) {
+      bestCaptures.push(move);
+    }
+  }
+  return randomMove(bestCaptures);
+}
+
+function pickBestMoveWithLookahead(moves, depth, branchLimit) {
+  const ordered = orderMovesForSearch(cloneBoardState(), moves, "red").slice(0, branchLimit);
+  let bestScore = -Infinity;
+  let bestMoves = [];
+  for (const move of ordered) {
+    const nextState = clonePieces(cloneBoardState());
+    applyMove(nextState, move.pieceId, move.toX, move.toY);
+    const score = minimax(nextState, "black", depth - 1, -Infinity, Infinity, branchLimit);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMoves = [move];
+    } else if (score === bestScore) {
+      bestMoves.push(move);
+    }
+  }
+  return randomMove(bestMoves.length > 0 ? bestMoves : ordered);
+}
+
 function evaluateMove(move) {
   const snapshot = clonePieces(pieces);
   const moving = snapshot.find((p) => p.id === move.pieceId);
@@ -803,19 +878,183 @@ function evaluateMove(move) {
   }
   moving.x = move.toX;
   moving.y = move.toY;
-  return materialScore(snapshot);
+  let score = materialScore(snapshot);
+  if (move.capture) score += (PIECE_VALUES[move.capture.type] ?? 0) * 0.1;
+  const redKing = findKing(snapshot, "red");
+  const blackKing = findKing(snapshot, "black");
+  if (redKing && isSquareAttacked(snapshot, redKing.x, redKing.y, "black")) score -= 80;
+  if (blackKing && isSquareAttacked(snapshot, blackKing.x, blackKing.y, "red")) score += 60;
+  return score;
 }
 
 function materialScore(state) {
-  const values = { k: 1000, r: 90, c: 45, n: 40, b: 20, a: 20, p: 10 };
   let red = 0;
   let black = 0;
   state.forEach((p) => {
-    const val = values[p.type] ?? 0;
+    const val = PIECE_VALUES[p.type] ?? 0;
     if (p.side === "red") red += val;
     else black += val;
   });
   return red - black;
+}
+
+function orderMovesForSearch(state, moves, side) {
+  const scored = moves.map((move) => ({ move, score: quickMoveScore(state, move, side) }));
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((item) => item.move);
+}
+
+function quickMoveScore(state, move, side) {
+  let score = 0;
+  if (move.capture) score += (PIECE_VALUES[move.capture.type] ?? 0) * 2;
+  const moving = state.find((p) => p.id === move.pieceId);
+  if (moving?.type === "p") {
+    score += side === "red" ? Math.max(0, 9 - move.toY) : Math.max(0, move.toY);
+  }
+  if (move.toX >= 3 && move.toX <= 5) score += 8;
+  return score;
+}
+
+function minimax(state, sideToMove, depth, alpha, beta, branchLimit) {
+  const redKing = findKing(state, "red");
+  const blackKing = findKing(state, "black");
+  if (!redKing) return -1000000 - depth;
+  if (!blackKing) return 1000000 + depth;
+  if (depth <= 0) return evaluateStateForRed(state);
+
+  const legalMoves = getAllLegalMovesFromState(state, sideToMove);
+  if (legalMoves.length === 0) {
+    const inCheck = isInCheckOnState(state, sideToMove);
+    if (!inCheck) return 0;
+    return sideToMove === "red" ? -1000000 - depth : 1000000 + depth;
+  }
+
+  const orderedMoves = orderMovesForSearch(state, legalMoves, sideToMove).slice(0, branchLimit);
+  if (sideToMove === "red") {
+    let best = -Infinity;
+    for (const move of orderedMoves) {
+      const nextState = clonePieces(state);
+      applyMove(nextState, move.pieceId, move.toX, move.toY);
+      const score = minimax(nextState, "black", depth - 1, alpha, beta, branchLimit);
+      if (score > best) best = score;
+      if (score > alpha) alpha = score;
+      if (beta <= alpha) break;
+    }
+    return best;
+  }
+
+  let best = Infinity;
+  for (const move of orderedMoves) {
+    const nextState = clonePieces(state);
+    applyMove(nextState, move.pieceId, move.toX, move.toY);
+    const score = minimax(nextState, "red", depth - 1, alpha, beta, branchLimit);
+    if (score < best) best = score;
+    if (score < beta) beta = score;
+    if (beta <= alpha) break;
+  }
+  return best;
+}
+
+function evaluateStateForRed(state) {
+  let score = materialScore(state);
+  const redMoves = getAllLegalMovesFromState(state, "red").length;
+  const blackMoves = getAllLegalMovesFromState(state, "black").length;
+  score += (redMoves - blackMoves) * 3;
+  const blackKing = findKing(state, "black");
+  if (blackKing && isSquareAttacked(state, blackKing.x, blackKing.y, "red")) score += 40;
+  const redKing = findKing(state, "red");
+  if (redKing && isSquareAttacked(state, redKing.x, redKing.y, "black")) score -= 50;
+  return score;
+}
+
+function isInCheckOnState(state, side) {
+  const king = findKing(state, side);
+  if (!king) return false;
+  const attacker = side === "red" ? "black" : "red";
+  return isSquareAttacked(state, king.x, king.y, attacker);
+}
+
+function getAllLegalMovesFromState(state, side) {
+  const moves = [];
+  for (const piece of state) {
+    if (piece.side !== side) continue;
+    for (let x = 0; x < BOARD_W; x += 1) {
+      for (let y = 0; y < BOARD_H; y += 1) {
+        if (piece.x === x && piece.y === y) continue;
+        const target = pieceAtState(state, x, y);
+        if (target && target.side === side) continue;
+        if (!validateMoveOnState(state, piece, x, y, Boolean(target))) continue;
+        if (wouldLeaveKingInCheckOnState(state, piece, x, y)) continue;
+        moves.push({
+          pieceId: piece.id,
+          fromX: piece.x,
+          fromY: piece.y,
+          toX: x,
+          toY: y,
+          capture: target || null,
+        });
+      }
+    }
+  }
+  return moves;
+}
+
+function validateMoveOnState(state, piece, toX, toY, isCapture) {
+  const dx = toX - piece.x;
+  const dy = toY - piece.y;
+  const absX = Math.abs(dx);
+  const absY = Math.abs(dy);
+  const forward = piece.side === "red" ? -1 : 1;
+  const pieceBetween = () => countBetweenState(state, piece.x, piece.y, toX, toY);
+
+  switch (piece.type) {
+    case "r":
+      return (dx === 0 || dy === 0) && pieceBetween() === 0;
+    case "c": {
+      if (dx !== 0 && dy !== 0) return false;
+      const between = pieceBetween();
+      return isCapture ? between === 1 : between === 0;
+    }
+    case "n": {
+      if (!((absX === 1 && absY === 2) || (absX === 2 && absY === 1))) return false;
+      const legX = piece.x + (absX === 2 ? dx / 2 : 0);
+      const legY = piece.y + (absY === 2 ? dy / 2 : 0);
+      return !pieceAtState(state, legX, legY);
+    }
+    case "b": {
+      if (!(absX === 2 && absY === 2)) return false;
+      const eyeX = piece.x + dx / 2;
+      const eyeY = piece.y + dy / 2;
+      if (pieceAtState(state, eyeX, eyeY)) return false;
+      if (piece.side === "red" && toY < 5) return false;
+      if (piece.side === "black" && toY > 4) return false;
+      return true;
+    }
+    case "a":
+      if (!(absX === 1 && absY === 1)) return false;
+      return piece.side === "red" ? inRedPalace(toX, toY) : inBlackPalace(toX, toY);
+    case "k":
+      if (!((absX === 1 && absY === 0) || (absX === 0 && absY === 1))) return false;
+      return piece.side === "red" ? inRedPalace(toX, toY) : inBlackPalace(toX, toY);
+    case "p":
+      if (dy !== forward && dy !== 0) return false;
+      if (dy === 0 && absX !== 1) return false;
+      if (dy === forward && absX !== 0) return false;
+      if (piece.side === "red" && piece.y >= 5) return dy === -1 && dx === 0;
+      if (piece.side === "black" && piece.y <= 4) return dy === 1 && dx === 0;
+      return true;
+    default:
+      return false;
+  }
+}
+
+function wouldLeaveKingInCheckOnState(state, piece, toX, toY) {
+  const nextState = clonePieces(state);
+  applyMove(nextState, piece.id, toX, toY);
+  const king = findKing(nextState, piece.side);
+  if (!king) return false;
+  if (kingsFacing(nextState)) return true;
+  return isSquareAttacked(nextState, king.x, king.y, piece.side === "red" ? "black" : "red");
 }
 
 function getAllLegalMoves(side) {
@@ -953,8 +1192,9 @@ function unlockAudio() {
 document.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
 
 function winGame(message) {
-  statusBox.textContent = message;
   completed = true;
+  if (message === "红方胜利！") return;
+  statusBox.textContent = message;
   playSound("success");
   boardEl.classList.add("celebrate");
   setTimeout(() => boardEl.classList.remove("celebrate"), 600);
