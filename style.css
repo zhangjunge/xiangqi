@@ -147,10 +147,6 @@ body {
   justify-items: center;
 }
 
-.tips {
-  order: -1;
-}
-
 .board-section > :not(.board) {
   width: min(94vw, 820px);
 }
