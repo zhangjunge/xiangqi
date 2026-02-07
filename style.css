@@ -80,8 +80,9 @@ body {
 
 .panel-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .panel-actions button {
@@ -91,6 +92,7 @@ body {
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .panel-actions button:disabled {
@@ -143,6 +145,10 @@ body {
   align-items: start;
   grid-column: 1 / -1;
   justify-items: center;
+}
+
+.tips {
+  order: -1;
 }
 
 .board-section > :not(.board) {
@@ -324,9 +330,8 @@ body {
   border-radius: 14px;
   padding: 12px;
   box-shadow: 0 8px 20px var(--shadow);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
 }
@@ -335,12 +340,25 @@ body {
   min-width: 0;
 }
 
+.level-control .level-tag,
 .level-control h2 {
   margin: 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .level-control p {
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tip-box p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chip {
@@ -409,7 +427,8 @@ body {
   }
 
   .level-control {
-    align-items: flex-start;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 }
 
@@ -438,7 +457,8 @@ body {
   }
 
   .level-control {
-    align-items: flex-start;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 }
 
