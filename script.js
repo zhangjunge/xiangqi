@@ -835,9 +835,9 @@ function aiMove() {
   } else if (level.difficulty === "master") {
     chosen = pickBestMoveWithLookahead(moves, 4, 10, false);
   } else if (level.difficulty === "grandmaster") {
-    chosen = pickBestMoveWithLookahead(moves, 4, 12, false);
+    chosen = pickBestMoveWithLookahead(moves, 4, 12, false, 1000);
   } else {
-    chosen = pickBestMoveWithLookahead(moves, 4, 14, false);
+    chosen = pickBestMoveWithLookahead(moves, 4, 12, false, 850);
   }
 
   if (!chosen) return;
@@ -889,14 +889,17 @@ function pickGreedyMove(moves) {
   return randomMove(bestCaptures);
 }
 
-function pickBestMoveWithLookahead(moves, depth, branchLimit, randomizeTies = true) {
-  const ordered = orderMovesForSearch(cloneBoardState(), moves, "red").slice(0, branchLimit);
+function pickBestMoveWithLookahead(moves, depth, branchLimit, randomizeTies = true, maxThinkMs = Infinity) {
+  const baseState = cloneBoardState();
+  const ordered = orderMovesForSearch(baseState, moves, "red").slice(0, branchLimit);
+  const deadline = Number.isFinite(maxThinkMs) ? performance.now() + maxThinkMs : Infinity;
   let bestScore = -Infinity;
   let bestMoves = [];
   for (const move of ordered) {
-    const nextState = clonePieces(cloneBoardState());
+    if (performance.now() > deadline) break;
+    const nextState = clonePieces(baseState);
     applyMove(nextState, move.pieceId, move.toX, move.toY);
-    const score = minimax(nextState, "black", depth - 1, -Infinity, Infinity, branchLimit);
+    const score = minimax(nextState, "black", depth - 1, -Infinity, Infinity, branchLimit, deadline);
     if (score > bestScore) {
       bestScore = score;
       bestMoves = [move];
@@ -956,7 +959,8 @@ function quickMoveScore(state, move, side) {
   return score;
 }
 
-function minimax(state, sideToMove, depth, alpha, beta, branchLimit) {
+function minimax(state, sideToMove, depth, alpha, beta, branchLimit, deadline = Infinity) {
+  if (performance.now() > deadline) return evaluateStateForRed(state);
   const redKing = findKing(state, "red");
   const blackKing = findKing(state, "black");
   if (!redKing) return -1000000 - depth;
@@ -974,9 +978,10 @@ function minimax(state, sideToMove, depth, alpha, beta, branchLimit) {
   if (sideToMove === "red") {
     let best = -Infinity;
     for (const move of orderedMoves) {
+      if (performance.now() > deadline) break;
       const nextState = clonePieces(state);
       applyMove(nextState, move.pieceId, move.toX, move.toY);
-      const score = minimax(nextState, "black", depth - 1, alpha, beta, branchLimit);
+      const score = minimax(nextState, "black", depth - 1, alpha, beta, branchLimit, deadline);
       if (score > best) best = score;
       if (score > alpha) alpha = score;
       if (beta <= alpha) break;
@@ -986,9 +991,10 @@ function minimax(state, sideToMove, depth, alpha, beta, branchLimit) {
 
   let best = Infinity;
   for (const move of orderedMoves) {
+    if (performance.now() > deadline) break;
     const nextState = clonePieces(state);
     applyMove(nextState, move.pieceId, move.toX, move.toY);
-    const score = minimax(nextState, "red", depth - 1, alpha, beta, branchLimit);
+    const score = minimax(nextState, "red", depth - 1, alpha, beta, branchLimit, deadline);
     if (score < best) best = score;
     if (score < beta) beta = score;
     if (beta <= alpha) break;
