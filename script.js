@@ -1234,11 +1234,13 @@ document.addEventListener("pointerdown", unlockAudio, { once: true, passive: tru
 
 function winGame(message) {
   completed = true;
-  if (message === "红方胜利！") return;
   statusBox.textContent = message;
   playSound("success");
   boardEl.classList.add("celebrate");
   setTimeout(() => boardEl.classList.remove("celebrate"), 600);
+  window.setTimeout(() => {
+    window.alert(message);
+  }, 80);
 }
 
 function playSound(kind) {
