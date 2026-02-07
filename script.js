@@ -1283,13 +1283,14 @@ function playSound(kind) {
     return;
   }
   if (kind === "ai-capture") {
-    playTone({ type: "square", freq: 300, gain: 0.05, duration: 0.09 });
-    playTone({ type: "triangle", freq: 210, gain: 0.055, start: 0.07, duration: 0.18 });
+    playTone({ type: "square", freq: 340, gain: 0.08, duration: 0.1 });
+    playTone({ type: "triangle", freq: 250, gain: 0.09, start: 0.08, duration: 0.16 });
+    playTone({ type: "triangle", freq: 520, gain: 0.05, start: 0.18, duration: 0.1 });
     return;
   }
   if (kind === "ai-move") {
-    playTone({ type: "sine", freq: 430, gain: 0.03, duration: 0.08 });
-    playTone({ type: "sine", freq: 520, gain: 0.03, start: 0.07, duration: 0.1 });
+    playTone({ type: "square", freq: 460, gain: 0.055, duration: 0.09 });
+    playTone({ type: "triangle", freq: 620, gain: 0.06, start: 0.09, duration: 0.12 });
     return;
   }
   if (kind === "error") {
